@@ -34,3 +34,6 @@ La cancelación automática registra motivo y actor `sistema-cierre`, libera cap
 Desplegar primero Órdenes (migración V4 y nuevo contrato interno con versión) y después Agenda (migración V3). Se usan las credenciales internas existentes; no hacen falta secretos nuevos. Variables opcionales en Agenda: `ORDER_CLOSURES_WORKER_ENABLED=true`, `ORDER_CLOSURES_POLL_DELAY_MS=15000` y `ORDER_CLOSURES_INITIAL_DELAY_MS=10000`.
 
 Verificación: 22 pruebas en Órdenes y 32 en Agenda, incluidas atomicidad y rollback del buzón, seguridad del acuse, idempotencia, cupos, ausencia de aviso de cancelación y reapertura. Prueba integrada HTTP local con dos procesos y bases H2 independientes: cierre, consumo y confirmación del evento, cupo recuperado y reserva posterior a reapertura preservada. H2 no sustituye la validación de migraciones en MySQL al desplegar.
+
+
+CORS cloud permite el dominio estable `https://subocol-taller.vercel.app` (sobrescribible mediante `FRONTEND_ORIGIN`) y conserva los origenes adicionales de `CORS_ALLOWED_ORIGINS`. No autoriza dominios de preview ni comodines, y no habilita CORS en `/internal/**`.
