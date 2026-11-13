@@ -17,7 +17,7 @@ El workflow `.github/workflows/ci.yml` construye en Linux con el Dockerfile. `mv
 
 Se requiere una base independiente por microservicio y no modificar la base de Franquicia. Completar DB_URL (JDBC, no R2DBC), DB_USER, DB_PASSWORD y las credenciales de migracion. Si el proveedor entrega un unico usuario para esa base, se puede usar como usuario de aplicacion y migracion, documentando que tiene permisos mas amplios; es preferible separar ambos si el plan lo permite. No usar el usuario de Ordenes en la base de Agenda ni al contrario.
 
-Confirmar TLS con el proveedor; la plantilla usa sslMode=VERIFY_IDENTITY y requiere certificado/nombre valido. No desactivar la verificacion para ocultar problemas de certificados. Flyway necesita permisos DDL y, en Ordenes, CREATE TRIGGER. Si el proveedor impide crear triggers, hay que resolver permisos antes de marcar el despliegue listo; no eliminar esa proteccion de auditoria. No se crea infraestructura ni se generan cargos por ejecutar CI.
+Confirmar TLS con el proveedor; la plantilla usa sslMode=VERIFY_IDENTITY y requiere certificado/nombre valido. No desactivar la verificacion para ocultar problemas de certificados. Flyway necesita permisos DDL y, en Ordenes, CREATE TRIGGER. Clever Cloud documenta que MySQL DEV NO permite CREATE TRIGGER ni funciones: Agenda puede usar DEV, pero Ordenes necesita un plan/proveedor que permita esos triggers. No crear una base DEV de Ordenes esperando que la migracion V3 funcione, ni eliminar esa proteccion de auditoria para desplegar. Antes de elegir un plan con coste, revisar precio y permisos. Ver https://www.clever-cloud.com/developers/doc/addons/mysql/ . No se crea infraestructura ni se generan cargos por ejecutar CI.
 
 ## Actualizaciones y ahorro
 
