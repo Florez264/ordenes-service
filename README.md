@@ -17,3 +17,7 @@ CORS: local permite `http://localhost:4200`; en nube definir `CORS_ALLOWED_ORIGI
 Agenda se comunica con Ordenes por `ORDENES_URL`; las credenciales `INTERNAL_USER` y `INTERNAL_PASSWORD` deben coincidir entre ambos despliegues. La salud publica esta en `/actuator/health`. Las respuestas de negocio siguen `{status,data}`.
 
 La cancelacion automatica de citas al cerrar una orden sigue pendiente. La integracion completa, coleccion Postman y decisiones comunes estan en el repositorio `subocol-infra`.
+
+## Integracion continua y Railway
+
+Ver [DESPLIEGUE.md](DESPLIEGUE.md). CI verifica el Dockerfile y publica una imagen independiente en GHCR. Las variables de nube estan en `.env.cloud.example`; los secretos reales se cargan en Railway.
