@@ -46,6 +46,8 @@ public class SeguridadConfiguration {
             a ->
                 a.requestMatchers("/actuator/health", "/actuator/health/**")
                     .permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/internal/ordenes/cierres/*/confirmar")
+                    .hasRole("SERVICIO")
                     .requestMatchers(HttpMethod.GET, "/internal/**")
                     .hasRole("SERVICIO")
                     .requestMatchers("/api/**")
@@ -65,8 +67,11 @@ public class SeguridadConfiguration {
   org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource(
       @Value("${taller.cors.allowed-origins:}") String origins) {
     var config = new org.springframework.web.cors.CorsConfiguration();
-    config.setAllowedOrigins(java.util.Arrays.stream(origins.split(","))
-        .map(String::trim).filter(origin -> !origin.isEmpty()).toList());
+    config.setAllowedOrigins(
+        java.util.Arrays.stream(origins.split(","))
+            .map(String::trim)
+            .filter(origin -> !origin.isEmpty())
+            .toList());
     if (config.getAllowedOrigins().stream().anyMatch(origin -> origin.contains("*"))) {
       throw new IllegalArgumentException("CORS requiere origenes explicitos, sin comodines");
     }

@@ -60,8 +60,9 @@ public class CasosUsoConfiguration {
       HistorialOrdenPort historial,
       ActorActualPort actor,
       UnidadTrabajoPort unidad,
-      Clock clock) {
-    return new CambiarEstadoUseCase(repo, historial, actor, unidad, clock);
+      Clock clock,
+      CierresOrdenPort cierres) {
+    return new CambiarEstadoUseCase(repo, historial, actor, unidad, clock, cierres);
   }
 
   @Bean

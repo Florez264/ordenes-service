@@ -16,6 +16,7 @@ public final class CambiarEstadoUseCase {
   private final ActorActualPort actor;
   private final UnidadTrabajoPort unidad;
   private final Clock clock;
+  private final CierresOrdenPort cierres;
 
   public OrdenDetalle ejecutar(
       UUID id, EstadoOrden destino, String motivo, long version, boolean reapertura) {
@@ -40,6 +41,8 @@ public final class CambiarEstadoUseCase {
                   actor.identificador(),
                   clock.instant(),
                   guardada.getVersion()));
+          if (guardada.getEstado() == EstadoOrden.CERRADA)
+            cierres.registrar(id, guardada.getVersion());
           return OrdenDetalle.desde(guardada);
         });
   }

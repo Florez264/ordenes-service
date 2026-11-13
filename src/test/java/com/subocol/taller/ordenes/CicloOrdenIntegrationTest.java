@@ -24,6 +24,10 @@ import org.springframework.test.web.servlet.MockMvc;
 class CicloOrdenIntegrationTest {
   @Autowired MockMvc mvc;
   @Autowired JdbcTemplate jdbc;
+
+  @org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+  com.subocol.taller.ordenes.infrastructure.persistence.adapter.CierresOrdenAdapter cierres;
+
   @MockitoSpyBean HistorialOrdenAdapter historial;
   static final String BODY =
       """
@@ -194,5 +198,51 @@ class CicloOrdenIntegrationTest {
     mvc.perform(get("/internal/ordenes/" + id).with(user("servicio").roles("SERVICIO")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.estado").value("REGISTRADA"));
+  }
+
+  @Test
+  void cierreGuardaEventoEnLaMismaTransaccionYExigeRolTecnicoParaConfirmar() throws Exception {
+    String id = crear();
+    cambiar(id, "EN_DIAGNOSTICO", 0);
+    cambiar(id, "EN_REPARACION", 1);
+    cambiar(id, "REPARADA", 2);
+    cambiar(id, "CERRADA", 3);
+    var evento =
+        cierres.pendientes().stream()
+            .filter(c -> c.ordenId().toString().equals(id))
+            .findFirst()
+            .orElseThrow();
+    assertThat(evento.version()).isEqualTo(4);
+    mvc.perform(
+            patch("/internal/ordenes/cierres/" + evento.id() + "/confirmar")
+                .with(user("juan").roles("ASESOR")))
+        .andExpect(status().isForbidden());
+    mvc.perform(
+            patch("/internal/ordenes/cierres/" + evento.id() + "/confirmar")
+                .with(user("interno").roles("SERVICIO")))
+        .andExpect(status().isOk());
+    assertThat(cierres.pendientes()).noneMatch(c -> c.id().equals(evento.id()));
+  }
+
+  @Test
+  void falloAlGuardarEventoRevierteCierreYSuHistorial() throws Exception {
+    String id = crear();
+    cambiar(id, "EN_DIAGNOSTICO", 0);
+    cambiar(id, "EN_REPARACION", 1);
+    cambiar(id, "REPARADA", 2);
+    doThrow(new IllegalStateException("fallo del buzon")).when(cierres).registrar(any(), anyLong());
+    mvc.perform(
+            patch("/api/ordenes/" + id + "/cambiar-estado")
+                .with(user("juan").roles("ASESOR"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"estado\":\"CERRADA\",\"motivo\":\"QA cierre\",\"version\":3}"))
+        .andExpect(status().isInternalServerError());
+    assertThat(
+            jdbc.queryForObject("select estado from orden_servicio where id=?", String.class, id))
+        .isEqualTo("REPARADA");
+    assertThat(
+            jdbc.queryForObject(
+                "select count(*) from historial_estado where orden_id=?", Long.class, id))
+        .isEqualTo(4);
   }
 }
