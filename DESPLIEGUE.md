@@ -39,3 +39,7 @@ La consulta periodica de Agenda genera trafico a MySQL y puede impedir el modo S
 ## Verificacion local de esta configuracion
 
 2026-11-12: imagen linux/amd64 construida correctamente; 20 pruebas pasaron dentro de Docker. Contenedor no root con perfil cloud, heap 192 MB, limite 512 MiB y 1 CPU: salud UP y listado autenticado HTTP 200 contra MySQL local. Memoria observada tras arranque y una consulta: aproximadamente 295.1 MiB. Es una muestra breve, no una prueba de carga ni garantia de RAM/costo en Railway. No se uso Meta real; el worker se desactivo solo durante este chequeo de arranque para no consumir avisos existentes. Los contenedores temporales se retiraron y los datos se conservaron.
+
+## Proveedor elegido: MySQL en Railway
+
+El despliegue actual usara un servidor MySQL Railway con dos bases y usuarios separados. Usar `.env.railway.example` (el nombre del servicio de base debe coincidir con la referencia MySQL). El repositorio de integracion contiene `RAILWAY.md` y `database/railway/01-bootstrap.example.sql`. La seccion Clever Cloud queda como referencia de una alternativa descartada para este despliegue. Nunca usar root como DB_USER de las APIs. En este caso la URL privada negocia TLS con PREFERRED; no garantiza cifrado y no se debe copiar a conexiones publicas.
